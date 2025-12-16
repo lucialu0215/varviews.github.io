@@ -1,731 +1,357 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>数界观科技有限公司 - 商业智能与企业数字化解决方案</title>
-    <script src="https://cdn.tailwindcss.com/3.3.3"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <script src="https://webapi.amap.com/loader.js"></script>
-    <style>
-        body {
-            font-family: 'Noto Sans SC', sans-serif;
-            background-color: #f8fafc;
-            color: #1e293b;
-            overflow-x: hidden;
-        }
-
-        .gradient-bg {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-        }
-
-        .gradient-text {
-            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-
-        .card-hover:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 28px 0 rgba(79, 70, 229, 0.15);
-        }
-
-        .logo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 2rem;
-        }
-
-        .logo-item {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1.5rem;
-            background-color: white;
-            border-radius: 0.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .logo-item:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .map-container {
-            height: 400px;
-            width: 100%;
-            position: relative;
-            border-radius: 0.75rem;
-            overflow: hidden;
-        }
-
-        .service-card {
-            border: 1px solid rgba(79, 70, 229, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .service-card:hover {
-            border-color: #4f46e5;
-            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1);
-        }
-
-        .stat-card {
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.1);
-        }
-
-        /* 移动端导航菜单样式 */
-        .mobile-menu {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            padding: 1rem;
-            margin: 0.5rem;
-            border-radius: 0.75rem;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-            transform-origin: top;
-            transform: scaleY(0);
-            opacity: 0;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            z-index: 100;
-        }
-
-        .mobile-menu.active {
-            transform: scaleY(1);
-            opacity: 1;
-        }
-
-        .mobile-menu a {
-            display: block;
-            padding: 0.75rem 1rem;
-            border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-
-        .mobile-menu a:hover, .mobile-menu a:focus {
-            background-color: rgba(79, 70, 229, 0.1);
-            color: #4f46e5;
-        }
-
-        /* 滚动动画 */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* 自定义滚动条 */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #c7d2fe;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #818cf8;
-        }
-    </style>
-</head>
-<body class="min-h-screen">
-    <!-- 导航条 -->
-    <nav class="bg-white sticky top-0 z-50 shadow-sm" id="mainNav">
-        <div class="container mx-auto flex items-center justify-between p-4">
-            <div class="flex items-center">
-                <div class="w-10 h-10 rounded-lg gradient-bg flex items-center justify-center text-white mr-3">
-                    <i class="fas fa-chart-line text-xl"></i>
-                </div>
-                <div class="text-xl font-bold gradient-text">数界观科技</div>
-            </div>
-            <div class="hidden md:flex space-x-8">
-                <a href="#about" class="text-gray-600 hover:text-indigo-600 transition-colors">关于我们</a>
-                <a href="#services" class="text-gray-600 hover:text-indigo-600 transition-colors">解决方案</a>
-                <a href="#global" class="text-gray-600 hover:text-indigo-600 transition-colors">全球分布</a>
-                <a href="#advantages" class="text-gray-600 hover:text-indigo-600 transition-colors">企业优势</a>
-                <a href="#partners" class="text-gray-600 hover:text-indigo-600 transition-colors">合作伙伴</a>
-            </div>
-            <button class="md:hidden text-gray-600 focus:outline-none" id="mobileMenuButton" aria-label="导航菜单">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
-
-            <!-- 移动端导航菜单 -->
-            <div class="mobile-menu md:hidden" id="mobileMenu">
-                <a href="#about" class="text-gray-600 hover:text-indigo-600 transition-colors flex items-center">
-                    <i class="fas fa-building mr-3 text-indigo-500"></i>关于我们
-                </a>
-                <a href="#services" class="text-gray-600 hover:text-indigo-600 transition-colors flex items-center">
-                    <i class="fas fa-cogs mr-3 text-indigo-500"></i>解决方案
-                </a>
-                <a href="#global" class="text-gray-600 hover:text-indigo-600 transition-colors flex items-center">
-                    <i class="fas fa-globe mr-3 text-indigo-500"></i>全球分布
-                </a>
-                <a href="#advantages" class="text-gray-600 hover:text-indigo-600 transition-colors flex items-center">
-                    <i class="fas fa-trophy mr-3 text-indigo-500"></i>企业优势
-                </a>
-                <a href="#partners" class="text-gray-600 hover:text-indigo-600 transition-colors flex items-center">
-                    <i class="fas fa-handshake mr-3 text-indigo-500"></i>合作伙伴
-                </a>
-            </div>
-        </div>
-    </nav>
-
-    <!-- 头部横幅 -->
-    <header class="gradient-bg text-white py-20 px-4">
-        <div class="container mx-auto">
-            <div class="max-w-3xl mx-auto text-center">
-                <h1 class="text-4xl md:text-5xl font-bold mb-6">数界观科技有限公司</h1>
-                <p class="text-xl md:text-2xl mb-8">连接数据与商业价值的智能桥梁</p>
-                <div class="flex flex-wrap justify-center gap-4">
-                    <a href="#services" class="bg-white text-indigo-600 px-6 py-3 rounded-lg font-medium hover:bg-opacity-90 transition-colors flex items-center">
-                        <i class="fas fa-rocket mr-2"></i>探索解决方案
-                    </a>
-                    <a href="#about" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-medium hover:bg-white hover:bg-opacity-10 transition-colors flex items-center">
-                        <i class="fas fa-info-circle mr-2"></i>了解更多
-                    </a>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        <meta name="description" content="" />
+        <meta name="author" content="" />
+        <title>Business Frontpage - Varviews Template</title>
+        <!-- Favicon-->
+        <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+        <!-- Bootstrap icons-->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet" />
+        <!-- Core theme CSS (includes Bootstrap)-->
+        <link href="css/styles.css" rel="stylesheet" />
+    </head>
+    <body>
+        <!-- Responsive navbar-->
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <div class="container px-5">
+                <a class="navbar-brand" href="#!">Varviews</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                        <li class="nav-item"><a class="nav-link active" aria-current="page" href="#!">Home</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#!">About</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#!">Contact</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#!">Services</a></li>
+                    </ul>
                 </div>
             </div>
-        </div>
-    </header>
-
-    <!-- 关于我们 -->
-    <section id="about" class="container mx-auto py-16 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12 fade-in">
-                <h2 class="text-3xl font-bold mb-4">关于数界观科技</h2>
-                <div class="w-20 h-1 bg-indigo-600 mx-auto"></div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-                <div class="fade-in">
-                    <img src="https://s.coze.cn/image/JW5dLa_-Ao4/" alt="数界观科技会议室" class="rounded-lg shadow-lg w-full h-auto">
-                </div>
-                <div class="fade-in">
-                    <h3 class="text-2xl font-semibold mb-4 gradient-text">公司简介</h3>
-                    <p class="text-gray-600 mb-4">数界观科技有限公司（Varviews Technology）成立于2022年，是云特思国际咨询集团（VANTIS CONSULTING GROUP，成立于2000年）旗下的科技子公司，总部位于中国香港。</p>
-                    <p class="text-gray-600 mb-4">我们致力于为企业提供全方位的数字化转型解决方案，帮助企业实现数据驱动的决策，提升运营效率和竞争力。</p>
-                    
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-8">
-                        <div class="bg-indigo-50 p-4 rounded-lg">
-                            <div class="flex items-center text-indigo-600 mb-2">
-                                <i class="fas fa-building mr-2"></i>
-                                <span class="font-medium">母公司</span>
-                            </div>
-                            <p class="text-gray-700">云特思国际咨询集团</p>
-                            <p class="text-sm text-gray-500">成立于2000年</p>
-                        </div>
-                        <div class="bg-indigo-50 p-4 rounded-lg">
-                            <div class="flex items-center text-indigo-600 mb-2">
-                                <i class="fas fa-map-marker-alt mr-2"></i>
-                                <span class="font-medium">总部位置</span>
-                            </div>
-                            <p class="text-gray-700">中国香港</p>
-                        </div>
-                        <div class="bg-indigo-50 p-4 rounded-lg">
-                            <div class="flex items-center text-indigo-600 mb-2">
-                                <i class="fas fa-calendar-alt mr-2"></i>
-                                <span class="font-medium">成立时间</span>
-                            </div>
-                            <p class="text-gray-700">2022年</p>
-                        </div>
-                        <div class="bg-indigo-50 p-4 rounded-lg">
-                            <div class="flex items-center text-indigo-600 mb-2">
-                                <i class="fas fa-globe-asia mr-2"></i>
-                                <span class="font-medium">全球分部</span>
-                            </div>
-                            <p class="text-gray-700">9个城市</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 业务解决方案 -->
-    <section id="services" class="bg-gray-50 py-16 px-4">
-        <div class="container mx-auto">
-            <div class="text-center mb-12 fade-in">
-                <h2 class="text-3xl font-bold mb-4">业务解决方案</h2>
-                <div class="w-20 h-1 bg-indigo-600 mx-auto"></div>
-                <p class="mt-4 text-gray-600 max-w-2xl mx-auto">我们提供全方位的企业数字化转型解决方案，帮助企业实现数据驱动的决策，提升运营效率和竞争力。</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-                <!-- 服务卡片 1 -->
-                <div class="bg-white p-6 rounded-lg shadow-sm service-card fade-in">
-                    <div class="w-12 h-12 rounded-lg gradient-bg flex items-center justify-center text-white mb-4">
-                        <i class="fas fa-chart-bar text-xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">商业智慧BI与大数据分析</h3>
-                    <p class="text-gray-600 text-sm">提供全面的数据分析和可视化解决方案，帮助企业挖掘数据价值，优化业务决策。</p>
-                </div>
-
-                <!-- 服务卡片 2 -->
-                <div class="bg-white p-6 rounded-lg shadow-sm service-card fade-in">
-                    <div class="w-12 h-12 rounded-lg gradient-bg flex items-center justify-center text-white mb-4">
-                        <i class="fas fa-bullseye text-xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">企业绩效管理EPM</h3>
-                    <p class="text-gray-600 text-sm">建立完善的绩效管理体系，帮助企业设定目标、监控进度、评估成果，提升整体绩效。</p>
-                </div>
-
-                <!-- 服务卡片 3 -->
-                <div class="bg-white p-6 rounded-lg shadow-sm service-card fade-in">
-                    <div class="w-12 h-12 rounded-lg gradient-bg flex items-center justify-center text-white mb-4">
-                        <i class="fas fa-users text-xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">人力资源管理系统HRMS</h3>
-                    <p class="text-gray-600 text-sm">优化人力资源管理流程，提升员工体验和管理效率，支持人才发展和组织变革。</p>
-                </div>
-
-                <!-- 服务卡片 4 -->
-                <div class="bg-white p-6 rounded-lg shadow-sm service-card fade-in">
-                    <div class="w-12 h-12 rounded-lg gradient-bg flex items-center justify-center text-white mb-4">
-                        <i class="fas fa-laptop-code text-xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">办公自动化OA</h3>
-                    <p class="text-gray-600 text-sm">实现办公流程数字化和自动化，提高协作效率，降低运营成本，提升企业敏捷性。</p>
-                </div>
-
-                <!-- 服务卡片 5 -->
-                <div class="bg-white p-6 rounded-lg shadow-sm service-card fade-in">
-                    <div class="w-12 h-12 rounded-lg gradient-bg flex items-center justify-center text-white mb-4">
-                        <i class="fas fa-industry text-xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">生产管理方案MES</h3>
-                    <p class="text-gray-600 text-sm">优化生产流程，提高生产效率和质量，降低成本，实现智能制造转型。</p>
-                </div>
-
-                <!-- 服务卡片 6 -->
-                <div class="bg-white p-6 rounded-lg shadow-sm service-card fade-in">
-                    <div class="w-12 h-12 rounded-lg gradient-bg flex items-center justify-center text-white mb-4">
-                        <i class="fas fa-cogs text-xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">企业资源规划ERP</h3>
-                    <p class="text-gray-600 text-sm">整合企业资源，优化业务流程，提升运营效率，支持企业规模化发展。</p>
-                </div>
-
-                <!-- 服务卡片 7 -->
-                <div class="bg-white p-6 rounded-lg shadow-sm service-card fade-in">
-                    <div class="w-12 h-12 rounded-lg gradient-bg flex items-center justify-center text-white mb-4">
-                        <i class="fas fa-headset text-xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">客户关系管理CRM</h3>
-                    <p class="text-gray-600 text-sm">优化客户管理流程，提升客户体验和满意度，增强客户忠诚度和价值。</p>
-                </div>
-
-                <!-- 服务卡片 8 -->
-                <div class="bg-white p-6 rounded-lg shadow-sm service-card fade-in">
-                    <div class="w-12 h-12 rounded-lg gradient-bg flex items-center justify-center text-white mb-4">
-                        <i class="fas fa-shopping-cart text-xl"></i>
-                    </div>
-                    <h3 class="text-xl font-semibold mb-3">采购管理系统SRM</h3>
-                    <p class="text-gray-600 text-sm">优化采购流程，降低采购成本，提升供应链效率和透明度，建立战略供应商关系。</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 全球分布 -->
-    <section id="global" class="container mx-auto py-16 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12 fade-in">
-                <h2 class="text-3xl font-bold mb-4">全球分布</h2>
-                <div class="w-20 h-1 bg-indigo-600 mx-auto"></div>
-                <p class="mt-4 text-gray-600 max-w-2xl mx-auto">我们的业务覆盖全球多个重要城市，为客户提供本地化的专业服务和支持。</p>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                <div class="lg:col-span-2 fade-in">
-                    <div class="map-container shadow-lg">
-                        <img src="https://raw.githubusercontent.com/lucialu0215/my-images/main/global%20branches.png" alt="数界观科技全球分布" class="w-full h-full object-cover">
-                    </div>
-                </div>
-                <div class="fade-in">
-                    <div class="bg-white p-6 rounded-lg shadow-sm h-full">
-                        <h3 class="text-xl font-semibold mb-6">全球办公地点</h3>
-                        <ul class="space-y-4">
-                            <li class="flex items-start">
-                                <div class="w-6 h-6 rounded-full gradient-bg flex items-center justify-center text-white text-xs mr-3 mt-1 flex-shrink-0">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <span class="font-medium">中国香港</span>
-                                    <p class="text-sm text-gray-500">总部</p>
-                                </div>
-                            </li>
-                            <li class="flex items-start">
-                                <div class="w-6 h-6 rounded-full gradient-bg flex items-center justify-center text-white text-xs mr-3 mt-1 flex-shrink-0">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <span class="font-medium">中国澳门</span>
-                                    <p class="text-sm text-gray-500">分部</p>
-                                </div>
-                            </li>
-                            <li class="flex items-start">
-                                <div class="w-6 h-6 rounded-full gradient-bg flex items-center justify-center text-white text-xs mr-3 mt-1 flex-shrink-0">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <span class="font-medium">中国东莞</span>
-                                    <p class="text-sm text-gray-500">分部</p>
-                                </div>
-                            </li>
-                            <li class="flex items-start">
-                                <div class="w-6 h-6 rounded-full gradient-bg flex items-center justify-center text-white text-xs mr-3 mt-1 flex-shrink-0">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <span class="font-medium">中国深圳</span>
-                                    <p class="text-sm text-gray-500">分部</p>
-                                </div>
-                            </li>
-                            <li class="flex items-start">
-                                <div class="w-6 h-6 rounded-full gradient-bg flex items-center justify-center text-white text-xs mr-3 mt-1 flex-shrink-0">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <span class="font-medium">中国佛山</span>
-                                    <p class="text-sm text-gray-500">分部</p>
-                                </div>
-                            </li>
-                            <li class="flex items-start">
-                                <div class="w-6 h-6 rounded-full gradient-bg flex items-center justify-center text-white text-xs mr-3 mt-1 flex-shrink-0">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <span class="font-medium">新加坡</span>
-                                    <p class="text-sm text-gray-500">分部</p>
-                                </div>
-                            </li>
-                            <li class="flex items-start">
-                                <div class="w-6 h-6 rounded-full gradient-bg flex items-center justify-center text-white text-xs mr-3 mt-1 flex-shrink-0">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <span class="font-medium">中国台北</span>
-                                    <p class="text-sm text-gray-500">分部</p>
-                                </div>
-                            </li>
-                            <li class="flex items-start">
-                                <div class="w-6 h-6 rounded-full gradient-bg flex items-center justify-center text-white text-xs mr-3 mt-1 flex-shrink-0">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <span class="font-medium">英国伦敦</span>
-                                    <p class="text-sm text-gray-500">分部</p>
-                                </div>
-                            </li>
-                            <li class="flex items-start">
-                                <div class="w-6 h-6 rounded-full gradient-bg flex items-center justify-center text-white text-xs mr-3 mt-1 flex-shrink-0">
-                                    <i class="fas fa-map-marker-alt"></i>
-                                </div>
-                                <div>
-                                    <span class="font-medium">马来西亚</span>
-                                    <p class="text-sm text-gray-500">分部</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- 企业优势 -->
-    <section id="advantages" class="bg-gray-50 py-16 px-4">
-        <div class="container mx-auto">
-            <div class="text-center mb-12 fade-in">
-                <h2 class="text-3xl font-bold mb-4">企业优势</h2>
-                <div class="w-20 h-1 bg-indigo-600 mx-auto"></div>
-                <p class="mt-4 text-gray-600 max-w-2xl mx-auto">我们拥有专业的团队和丰富的经验，为客户提供高质量的服务和解决方案。</p>
-            </div>
-
-            <div class="max-w-6xl mx-auto">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                    <!-- 数据卡片 1 -->
-                    <div class="bg-white p-6 rounded-lg shadow-sm stat-card text-center fade-in">
-                        <div class="text-4xl font-bold gradient-text mb-2">250+</div>
-                        <p class="text-gray-600">全球员工</p>
-                    </div>
-
-                    <!-- 数据卡片 2 -->
-                    <div class="bg-white p-6 rounded-lg shadow-sm stat-card text-center fade-in">
-                        <div class="text-4xl font-bold gradient-text mb-2">75%</div>
-                        <p class="text-gray-600">技术顾问占比</p>
-                    </div>
-
-                    <!-- 数据卡片 3 -->
-                    <div class="bg-white p-6 rounded-lg shadow-sm stat-card text-center fade-in">
-                        <div class="text-4xl font-bold gradient-text mb-2">1,500+</div>
-                        <p class="text-gray-600">全球客户</p>
-                    </div>
-                </div>
-
-                <div class="bg-white p-8 rounded-lg shadow-sm fade-in">
-                    <h3 class="text-2xl font-semibold mb-6 text-center">服务特点</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div class="flex">
-                            <div class="w-12 h-12 rounded-lg gradient-bg flex items-center justify-center text-white mr-4 flex-shrink-0">
-                                <i class="fas fa-globe-asia text-xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xl font-medium mb-3">跨领域跨区域案例经验</h4>
-                                <p class="text-gray-600">我们拥有丰富的跨行业、跨地区项目经验，能够快速理解客户需求，提供量身定制的解决方案。我们的团队熟悉不同地区的商业环境和法规要求，确保项目顺利实施和运营。</p>
-                            </div>
-                        </div>
-                        <div class="flex">
-                            <div class="w-12 h-12 rounded-lg gradient-bg flex items-center justify-center text-white mr-4 flex-shrink-0">
-                                <i class="fas fa-headset text-xl"></i>
-                            </div>
-                            <div>
-                                <h4 class="text-xl font-medium mb-3">一流服务支持</h4>
-                                <p class="text-gray-600">我们提供7×24小时的专业技术支持，确保客户系统稳定运行。我们的服务团队由经验丰富的专业人士组成，能够快速响应客户需求，解决各种技术问题，提供持续的优化建议。</p>
+        </nav>
+        <!-- Header-->
+        <header class="bg-dark py-5">
+            <div class="container px-5">
+                <div class="row gx-5 justify-content-center">
+                    <div class="col-lg-6">
+                        <div class="text-center my-5">
+                            <h1 class="display-5 fw-bolder text-white mb-2">Present your business in a whole new way</h1>
+                            <p class="lead text-white-50 mb-4">Quickly design and customize responsive mobile-first sites with Bootstrap, the world’s most popular front-end open source toolkit!</p>
+                            <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                                <a class="btn btn-primary btn-lg px-4 me-sm-3" href="#features">Get Started</a>
+                                <a class="btn btn-outline-light btn-lg px-4" href="#!">Learn More</a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- 合作伙伴 -->
-    <section id="partners" class="container mx-auto py-16 px-4">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-12 fade-in">
-                <h2 class="text-3xl font-bold mb-4">合作伙伴</h2>
-                <div class="w-20 h-1 bg-indigo-600 mx-auto"></div>
-                <p class="mt-4 text-gray-600 max-w-2xl mx-auto">我们与全球领先的技术和服务提供商建立了紧密的合作关系，共同为客户创造价值。</p>
-            </div>
-
-            <div class="logo-grid fade-in">
-                <!-- 合作伙伴Logo -->
-                <div class="logo-item">
-                    <div class="text-2xl font-bold gradient-text">帆软</div>
-                </div>
-                <div class="logo-item">
-                    <div class="text-2xl font-bold gradient-text">腾讯</div>
-                </div>
-                <div class="logo-item">
-                    <div class="text-2xl font-bold gradient-text">用友</div>
-                </div>
-                <div class="logo-item">
-                    <div class="text-2xl font-bold gradient-text">Sage</div>
-                </div>
-                <div class="logo-item">
-                    <div class="text-2xl font-bold gradient-text">Oracle</div>
-                </div>
-                <div class="logo-item">
-                    <div class="text-2xl font-bold gradient-text">Jedox</div>
-                </div>
-                <div class="logo-item">
-                    <div class="text-2xl font-bold gradient-text">Microsoft</div>
-                </div>
-                <div class="logo-item">
-                    <div class="text-2xl font-bold gradient-text">Qlik</div>
-                </div>
-                <div class="logo-item">
-                    <div class="text-2xl font-bold gradient-text">SAP</div>
-                </div>
-                <div class="logo-item">
-                    <div class="text-2xl font-bold gradient-text">黑湖小工单</div>
-                </div>
-                <div class="logo-item">
-                    <div class="text-2xl font-bold gradient-text">明道云</div>
+        </header>
+        <!-- Features section-->
+        <section class="py-5 border-bottom" id="features">
+            <div class="container px-5 my-5">
+                <div class="row gx-5">
+                    <div class="col-lg-4 mb-5 mb-lg-0">
+                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-collection"></i></div>
+                        <h2 class="h4 fw-bolder">Featured title</h2>
+                        <p>Paragraph of text beneath the heading to explain the heading. We'll add onto it with another sentence and probably just keep going until we run out of words.</p>
+                        <a class="text-decoration-none" href="#!">
+                            Call to action
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="col-lg-4 mb-5 mb-lg-0">
+                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-building"></i></div>
+                        <h2 class="h4 fw-bolder">Featured title</h2>
+                        <p>Paragraph of text beneath the heading to explain the heading. We'll add onto it with another sentence and probably just keep going until we run out of words.</p>
+                        <a class="text-decoration-none" href="#!">
+                            Call to action
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                    <div class="col-lg-4">
+                        <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-toggles2"></i></div>
+                        <h2 class="h4 fw-bolder">Featured title</h2>
+                        <p>Paragraph of text beneath the heading to explain the heading. We'll add onto it with another sentence and probably just keep going until we run out of words.</p>
+                        <a class="text-decoration-none" href="#!">
+                            Call to action
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- 页脚 -->
-    <footer class="gradient-bg text-white py-12 px-4">
-        <div class="container mx-auto">
-            <div class="max-w-6xl mx-auto">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-                    <div>
-                        <div class="flex items-center mb-4">
-                            <div class="w-10 h-10 rounded-lg bg-white flex items-center justify-center text-indigo-600 mr-3">
-                                <i class="fas fa-chart-line text-xl"></i>
+        </section>
+        <!-- Pricing section-->
+        <section class="bg-light py-5 border-bottom">
+            <div class="container px-5 my-5">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bolder">Pay as you grow</h2>
+                    <p class="lead mb-0">With our no hassle pricing plans</p>
+                </div>
+                <div class="row gx-5 justify-content-center">
+                    <!-- Pricing card free-->
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="card mb-5 mb-xl-0">
+                            <div class="card-body p-5">
+                                <div class="small text-uppercase fw-bold text-muted">Free</div>
+                                <div class="mb-3">
+                                    <span class="display-4 fw-bold">$0</span>
+                                    <span class="text-muted">/ mo.</span>
+                                </div>
+                                <ul class="list-unstyled mb-4">
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        <strong>1 users</strong>
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        5GB storage
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        Unlimited public projects
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        Community access
+                                    </li>
+                                    <li class="mb-2 text-muted">
+                                        <i class="bi bi-x"></i>
+                                        Unlimited private projects
+                                    </li>
+                                    <li class="mb-2 text-muted">
+                                        <i class="bi bi-x"></i>
+                                        Dedicated support
+                                    </li>
+                                    <li class="mb-2 text-muted">
+                                        <i class="bi bi-x"></i>
+                                        Free linked domain
+                                    </li>
+                                    <li class="text-muted">
+                                        <i class="bi bi-x"></i>
+                                        Monthly status reports
+                                    </li>
+                                </ul>
+                                <div class="d-grid"><a class="btn btn-outline-primary" href="#!">Choose plan</a></div>
                             </div>
-                            <div class="text-xl font-bold">数界观科技</div>
-                        </div>
-                        <p class="text-white text-opacity-80 mb-4">连接数据与商业价值的智能桥梁</p>
-                        <div class="flex space-x-4">
-                            <a href="#" class="text-white hover:text-indigo-200 transition-colors">
-                                <i class="fab fa-linkedin-in text-xl"></i>
-                            </a>
-                            <a href="#" class="text-white hover:text-indigo-200 transition-colors">
-                                <i class="fab fa-twitter text-xl"></i>
-                            </a>
-                            <a href="#" class="text-white hover:text-indigo-200 transition-colors">
-                                <i class="fab fa-facebook-f text-xl"></i>
-                            </a>
-                            <a href="#" class="text-white hover:text-indigo-200 transition-colors">
-                                <i class="fab fa-weixin text-xl"></i>
-                            </a>
                         </div>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-semibold mb-4">解决方案</h3>
-                        <ul class="space-y-2">
-                            <li><a href="#" class="text-white text-opacity-80 hover:text-white transition-colors">商业智慧BI</a></li>
-                            <li><a href="#" class="text-white text-opacity-80 hover:text-white transition-colors">企业绩效管理EPM</a></li>
-                            <li><a href="#" class="text-white text-opacity-80 hover:text-white transition-colors">人力资源管理系统HRMS</a></li>
-                            <li><a href="#" class="text-white text-opacity-80 hover:text-white transition-colors">办公自动化OA</a></li>
-                        </ul>
+                    <!-- Pricing card pro-->
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="card mb-5 mb-xl-0">
+                            <div class="card-body p-5">
+                                <div class="small text-uppercase fw-bold">
+                                    <i class="bi bi-star-fill text-warning"></i>
+                                    Pro
+                                </div>
+                                <div class="mb-3">
+                                    <span class="display-4 fw-bold">$9</span>
+                                    <span class="text-muted">/ mo.</span>
+                                </div>
+                                <ul class="list-unstyled mb-4">
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        <strong>5 users</strong>
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        5GB storage
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        Unlimited public projects
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        Community access
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        Unlimited private projects
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        Dedicated support
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        Free linked domain
+                                    </li>
+                                    <li class="text-muted">
+                                        <i class="bi bi-x"></i>
+                                        Monthly status reports
+                                    </li>
+                                </ul>
+                                <div class="d-grid"><a class="btn btn-primary" href="#!">Choose plan</a></div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-semibold mb-4">关于我们</h3>
-                        <ul class="space-y-2">
-                            <li><a href="#" class="text-white text-opacity-80 hover:text-white transition-colors">公司简介</a></li>
-                            <li><a href="#" class="text-white text-opacity-80 hover:text-white transition-colors">全球分布</a></li>
-                            <li><a href="#" class="text-white text-opacity-80 hover:text-white transition-colors">企业优势</a></li>
-                            <li><a href="#" class="text-white text-opacity-80 hover:text-white transition-colors">合作伙伴</a></li>
-                        </ul>
+                    <!-- Pricing card enterprise-->
+                    <div class="col-lg-6 col-xl-4">
+                        <div class="card">
+                            <div class="card-body p-5">
+                                <div class="small text-uppercase fw-bold text-muted">Enterprise</div>
+                                <div class="mb-3">
+                                    <span class="display-4 fw-bold">$49</span>
+                                    <span class="text-muted">/ mo.</span>
+                                </div>
+                                <ul class="list-unstyled mb-4">
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        <strong>Unlimited users</strong>
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        5GB storage
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        Unlimited public projects
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        Community access
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        Unlimited private projects
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        Dedicated support
+                                    </li>
+                                    <li class="mb-2">
+                                        <i class="bi bi-check text-primary"></i>
+                                        <strong>Unlimited</strong>
+                                        linked domains
+                                    </li>
+                                    <li class="text-muted">
+                                        <i class="bi bi-check text-primary"></i>
+                                        Monthly status reports
+                                    </li>
+                                </ul>
+                                <div class="d-grid"><a class="btn btn-outline-primary" href="#!">Choose plan</a></div>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <h3 class="text-lg font-semibold mb-4">联系我们</h3>
-                        <ul class="space-y-2">
-                            <li class="flex items-start">
-                                <i class="fas fa-map-marker-alt mt-1 mr-3"></i>
-                                <span class="text-white text-opacity-80">中国香港</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-envelope mt-1 mr-3"></i>
-                                <span class="text-white text-opacity-80">contact@varviews.com</span>
-                            </li>
-                            <li class="flex items-start">
-                                <i class="fas fa-phone mt-1 mr-3"></i>
-                                <span class="text-white text-opacity-80">+852 1234 5678</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div class="border-t border-white border-opacity-20 pt-8 text-center">
-                    <p class="text-white text-opacity-80">© 2024 数界观科技有限公司. 保留所有权利.</p>
-                    <p class="text-white text-opacity-80 mt-2">
-                        <a href="https://space.coze.cn" class="hover:underline">created by coze space</a> | 
-                        页面内容均由 AI 生成，仅供参考
-                    </p>
                 </div>
             </div>
-        </div>
-    </footer>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // 平滑滚动
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
-
-                    // 点击导航链接后关闭移动端菜单
-                    const mobileMenu = document.getElementById('mobileMenu');
-                    if (mobileMenu.classList.contains('active')) {
-                        mobileMenu.classList.remove('active');
-                        // 同时切换图标回汉堡按钮
-                        const menuIcon = document.querySelector('#mobileMenuButton i');
-                        menuIcon.classList.remove('fa-times');
-                        menuIcon.classList.add('fa-bars');
-                    }
-                });
-            });
-
-            // 移动端导航菜单切换
-            const menuButton = document.getElementById('mobileMenuButton');
-            const mobileMenu = document.getElementById('mobileMenu');
-
-            menuButton.addEventListener('click', function() {
-                mobileMenu.classList.toggle('active');
-
-                // 切换图标
-                const icon = this.querySelector('i');
-                if (mobileMenu.classList.contains('active')) {
-                    icon.classList.remove('fa-bars');
-                    icon.classList.add('fa-times');
-                } else {
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            });
-
-            // 点击页面其他区域关闭移动端菜单
-            document.addEventListener('click', function(event) {
-                const isClickInsideNav = document.getElementById('mainNav').contains(event.target);
-
-                if (!isClickInsideNav && mobileMenu.classList.contains('active')) {
-                    mobileMenu.classList.remove('active');
-                    const icon = menuButton.querySelector('i');
-                    icon.classList.remove('fa-times');
-                    icon.classList.add('fa-bars');
-                }
-            });
-
-            // 滚动动画
-            const fadeElements = document.querySelectorAll('.fade-in');
-            
-            const fadeInOnScroll = function() {
-                fadeElements.forEach(element => {
-                    const elementTop = element.getBoundingClientRect().top;
-                    const elementBottom = element.getBoundingClientRect().bottom;
-                    const isVisible = (elementTop < window.innerHeight - 100) && (elementBottom > 0);
-                    
-                    if (isVisible) {
-                        element.classList.add('visible');
-                    }
-                });
-            };
-            
-            // 初始检查
-            fadeInOnScroll();
-            
-            // 滚动时检查
-            window.addEventListener('scroll', fadeInOnScroll);
-
-            // 导航栏滚动效果
-            const nav = document.getElementById('mainNav');
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 10) {
-                    nav.classList.add('shadow-md');
-                    nav.classList.remove('shadow-sm');
-                } else {
-                    nav.classList.remove('shadow-md');
-                    nav.classList.add('shadow-sm');
-                }
-            });
-        });
-    </script>
-</body>
+        </section>
+        <!-- Testimonials section-->
+        <section class="py-5 border-bottom">
+            <div class="container px-5 my-5 px-5">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bolder">Customer testimonials</h2>
+                    <p class="lead mb-0">Our customers love working with us</p>
+                </div>
+                <div class="row gx-5 justify-content-center">
+                    <div class="col-lg-6">
+                        <!-- Testimonial 1-->
+                        <div class="card mb-4">
+                            <div class="card-body p-4">
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0"><i class="bi bi-chat-right-quote-fill text-primary fs-1"></i></div>
+                                    <div class="ms-4">
+                                        <p class="mb-1">Thank you for putting together such a great product. We loved working with you and the whole team, and we will be recommending you to others!</p>
+                                        <div class="small text-muted">- Client Name, Location</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Testimonial 2-->
+                        <div class="card">
+                            <div class="card-body p-4">
+                                <div class="d-flex">
+                                    <div class="flex-shrink-0"><i class="bi bi-chat-right-quote-fill text-primary fs-1"></i></div>
+                                    <div class="ms-4">
+                                        <p class="mb-1">The whole team was a huge help with putting things together for our company and brand. We will be hiring them again in the near future for additional work!</p>
+                                        <div class="small text-muted">- Client Name, Location</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Contact section-->
+        <section class="bg-light py-5">
+            <div class="container px-5 my-5 px-5">
+                <div class="text-center mb-5">
+                    <div class="feature bg-primary bg-gradient text-white rounded-3 mb-3"><i class="bi bi-envelope"></i></div>
+                    <h2 class="fw-bolder">Get in touch</h2>
+                    <p class="lead mb-0">We'd love to hear from you</p>
+                </div>
+                <div class="row gx-5 justify-content-center">
+                    <div class="col-lg-6">
+                        <!-- * * * * * * * * * * * * * * *-->
+                        <!-- * * SB Forms Contact Form * *-->
+                        <!-- * * * * * * * * * * * * * * *-->
+                        <!-- This form is pre-integrated with SB Forms.-->
+                        <!-- To make this form functional, sign up at-->
+                        <!-- https://startbootstrap.com/solution/contact-forms-->
+                        <!-- to get an API token!-->
+                        <form id="contactForm" data-sb-form-api-token="API_TOKEN">
+                            <!-- Name input-->
+                            <div class="form-floating mb-3">
+                                <input class="form-control" id="name" type="text" placeholder="Enter your name..." data-sb-validations="required" />
+                                <label for="name">Full name</label>
+                                <div class="invalid-feedback" data-sb-feedback="name:required">A name is required.</div>
+                            </div>
+                            <!-- Email address input-->
+                            <div class="form-floating mb-3">
+                                <input class="form-control" id="email" type="email" placeholder="name@example.com" data-sb-validations="required,email" />
+                                <label for="email">Email address</label>
+                                <div class="invalid-feedback" data-sb-feedback="email:required">An email is required.</div>
+                                <div class="invalid-feedback" data-sb-feedback="email:email">Email is not valid.</div>
+                            </div>
+                            <!-- Phone number input-->
+                            <div class="form-floating mb-3">
+                                <input class="form-control" id="phone" type="tel" placeholder="(123) 456-7890" data-sb-validations="required" />
+                                <label for="phone">Phone number</label>
+                                <div class="invalid-feedback" data-sb-feedback="phone:required">A phone number is required.</div>
+                            </div>
+                            <!-- Message input-->
+                            <div class="form-floating mb-3">
+                                <textarea class="form-control" id="message" type="text" placeholder="Enter your message here..." style="height: 10rem" data-sb-validations="required"></textarea>
+                                <label for="message">Message</label>
+                                <div class="invalid-feedback" data-sb-feedback="message:required">A message is required.</div>
+                            </div>
+                            <!-- Submit success message-->
+                            <!---->
+                            <!-- This is what your users will see when the form-->
+                            <!-- has successfully submitted-->
+                            <div class="d-none" id="submitSuccessMessage">
+                                <div class="text-center mb-3">
+                                    <div class="fw-bolder">Form submission successful!</div>
+                                    To activate this form, sign up at
+                                    <br />
+                                    <a href="https://startbootstrap.com/solution/contact-forms">https://startbootstrap.com/solution/contact-forms</a>
+                                </div>
+                            </div>
+                            <!-- Submit error message-->
+                            <!---->
+                            <!-- This is what your users will see when there is-->
+                            <!-- an error submitting the form-->
+                            <div class="d-none" id="submitErrorMessage"><div class="text-center text-danger mb-3">Error sending message!</div></div>
+                            <!-- Submit Button-->
+                            <div class="d-grid"><button class="btn btn-primary btn-lg disabled" id="submitButton" type="submit">Submit</button></div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Footer-->
+        <footer class="py-5 bg-dark">
+            <div class="container px-5"><p class="m-0 text-center text-white">Copyright &copy; Your Website 2023</p></div>
+        </footer>
+        <!-- Bootstrap core JS-->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Core theme JS-->
+        <script src="js/scripts.js"></script>
+        <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+        <!-- * *                               SB Forms JS                               * *-->
+        <!-- * * Activate your form at https://startbootstrap.com/solution/contact-forms * *-->
+        <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *-->
+        <script src="https://cdn.startbootstrap.com/sb-forms-latest.js"></script>
+    </body>
 </html>
